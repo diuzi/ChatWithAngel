@@ -8,4 +8,8 @@
 """
 
 from src.quantization.hf_quantization import load_quantized_for_inference
-from src.quantization.gptq import gpt_quantize
+
+try:
+    from src.quantization.gptq import gpt_quantize
+except Exception:
+    ...
