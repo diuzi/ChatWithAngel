@@ -971,14 +971,14 @@ class ChatGLMModel(ChatGLMPreTrainedModel):
         )
 
         # 4. Continuous prompt embeddings for every layers
-        if self.pre_seq_len and past_key_values is None:  # first forward for inference
-            # Add continuous prompt embeddings for every layers
-            if self.pre_seq_len:  # <=> pre_seq_len is not None and pre_seq_len > 0
-                past_key_values = self._get_Ptuning_prompt(
-                    batch_size=batch_size,
-                    device=inputs_embeds.device,
-                    dtype=inputs_embeds.dtype
-                )
+        # past_key_values is None <=> first forward for inference / training
+        # pre_seq_len is not None and pre_seq_len > 0
+        if self.pre_seq_len and past_key_values is None:
+            past_key_values = self._get_Ptuning_prompt(
+                batch_size=batch_size,
+                device=inputs_embeds.device,
+                dtype=inputs_embeds.dtype
+            )
 
         if past_key_values is None and self.pre_seq_len is not None and self.pre_seq_len > 0:
             past_key_values = self._get_Ptuning_prompt(
