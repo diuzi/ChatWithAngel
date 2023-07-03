@@ -1,8 +1,8 @@
-torch>=1.13.1
+torch>=2.0
 transformers@git+https://github.com/huggingface/transformers.git
 accelerate==0.20.3
 bitsandbytes==0.39.0
 gradio==3.35.2
 mdtex2html==1.2.0
-cpm_kernels
+cpm_kernels==1.0.11
 loguru
