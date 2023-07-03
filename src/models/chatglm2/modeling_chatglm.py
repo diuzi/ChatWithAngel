@@ -1404,10 +1404,10 @@ class ChatGLMForConditionalGeneration(ChatGLMPreTrainedModel):
 
         # 2. Forward
         outputs = self.generate(logits_processor=logits_processor, stopping_criteria=stopping_criteria, **inputs, **kwargs)
-        outputs = outputs.tolist()[0][len(inputs["input_ids"][0]):]
-        response = tokenizer.decode(outputs, skip_special_tokens=True)
+        outputs = outputs.tolist()[0]
+        response = tokenizer.decode(outputs[len(inputs["input_ids"][0]):], skip_special_tokens=True)
 
-        return response, balance - len(outputs[0])
+        return response, balance - len(outputs)
 
     @torch.no_grad()
     def stream_chat(
