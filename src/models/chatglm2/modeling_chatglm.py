@@ -3,12 +3,6 @@
 import copy
 import warnings
 import sys
-
-import torch
-import torch.utils.checkpoint
-import torch.nn.functional as F
-from torch import nn
-from torch.nn.utils import skip_init
 from typing import (
     Optional,
     Tuple,
@@ -19,6 +13,11 @@ from typing import (
     Any
 )
 
+import torch
+import torch.utils.checkpoint
+import torch.nn.functional as F
+from torch import nn
+from torch.nn.utils import skip_init
 from transformers import StoppingCriteria
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import logging
@@ -261,15 +260,15 @@ class CoreAttention(torch.nn.Module):
         """
 
         Args:
-            query_layer: [tgt_len, batch_size, num_heads, head_head_size]
-            key_layer: [src_len, batch_size, num_heads, head_head_size]
-            value_layer: [src_len, batch_size, num_heads, head_head_size]
+            query_layer: [tgt_len, batch_size, num_heads, head_hidden_size]
+            key_layer: [src_len, batch_size, num_heads, head_hidden_size]
+            value_layer: [src_len, batch_size, num_heads, head_hidden_size]
             attention_mask: [batch_size, 1, seq_len, src_len]
 
         Returns: [tgt_len, batch_size, hidden_size]
 
         """
-        # [seq_len, batch_size, num_heads, head_head_size] => [batch_size, num_heads, seq_len, head_head_size]
+        # [seq_len, batch_size, num_heads, head_hidden_size] => [batch_size, num_heads, seq_len, head_hidden_size]
         query_layer, key_layer, value_layer = [k.permute(1, 2, 0, 3) for k in [query_layer, key_layer, value_layer]]
 
         # [batch_size, num_heads, tgt_len, head_hidden_size]
@@ -691,9 +690,6 @@ class ChatGLMPreTrainedModel(PreTrainedModel):
             device:
             past_len:
             padding_mask: The strategy of padding must be 'left'
-                for inference: [batch_size, past_len + seq_len]
-                for inference: [batch_size, past_len + seq_len]
-                for inference: [batch_size, past_len + seq_len]
             prefix_encoder_prompt_len:
 
         Examples:
@@ -960,7 +956,7 @@ class ChatGLMModel(ChatGLMPreTrainedModel):
             # In the inference, use cache, not use `p-tuning v2`
             past_len = past_key_values[0][0].shape[0]
         else:
-            # training or Inference(not use cache)
+            # training or Inference(not use cache, or first forward)
             past_len = 0
         full_attention_mask: torch.BoolTensor = self.prepare_masks(
             input_shape=(inputs_embeds.size(1), inputs_embeds.size(0)),  # [batch_size, seq_len]
