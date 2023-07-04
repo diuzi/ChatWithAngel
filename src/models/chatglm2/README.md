@@ -2,7 +2,11 @@
 
 1. 在注入位置信息(旋转位置编码)的过程中, 将`RotaryEmbedding` `forward`中每次计算cos, sin项提取为类属性通过`register_buffer`注册进内存中, 复用cos,sin后不用在每次模型forward过程中计算cos, sin.
 
-2. Attention mask 的实现在训练时貌似不预期. 假设训练时不使用`PTuning`. `pre_seq_len`为None/0, 
+2. Update: [chatglm6b-2 iuuse#185](https://github.com/THUDM/ChatGLM2-6B/issues/185)
+   >前两个 pad token 用不到所以 attention 是什么样的其实无所谓。
+   > 之所以全部是 True 是因为如果是 False 的话，在不使用 scaled_dot_product_attention 的时候对应的 attention score全部是 -inf，
+   > 会导致计算出来的 hidden state 变成 nan。
+   ~~Attention mask 的实现在训练时貌似不预期. 假设训练时不使用`PTuning`. `pre_seq_len`为None/0,~~ 
 
    样本
 
